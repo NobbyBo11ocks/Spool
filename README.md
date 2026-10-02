@@ -10,6 +10,11 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/NobbyBo11ocks/Spool/actions/workflows/ci.yml"><img src="https://github.com/NobbyBo11ocks/Spool/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT license"></a>
+</p>
+
+<p align="center">
   <img src="docs/images/popup-light.png#gh-light-mode-only" alt="Spool popup listing a video file, an HLS stream and a DASH stream" width="300">
   <img src="docs/images/popup-dark.png#gh-dark-mode-only" alt="Spool popup listing a video file, an HLS stream and a DASH stream" width="300">
 </p>
@@ -159,7 +164,8 @@ npm run test:e2e
 ```
 
 Without `CHROME_FOR_TESTING`, Playwright's bundled Chromium is used (`npx playwright install chromium`). CI runs both
-suites on every push.
+suites on every push. The tests use the ffmpeg bundled by `ffmpeg-static`; set `FFMPEG_PATH` to use a system build instead
+(CI does: the bundled static binary was observed to crash on GitHub's Linux runners when decoding MPEG-TS).
 
 To try the extension by hand against the same pages and CDNs the tests use:
 
