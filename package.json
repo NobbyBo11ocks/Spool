@@ -1,0 +1,21 @@
+{
+  "name": "spool",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Spool: a Chrome extension that saves the video you are watching (direct files and HLS streams).",
+  "scripts": {
+    "test": "npm run lint && node --test \"tests/*.test.js\"",
+    "test:e2e": "node --test --test-concurrency=1 \"tests/e2e/*.test.js\"",
+    "lint": "eslint .",
+    "icons": "node scripts/build-icons.mjs",
+    "screenshots": "node scripts/screenshots.mjs",
+    "pack": "node scripts/pack.mjs"
+  },
+  "devDependencies": {
+    "eslint": "^10.11.0",
+    "ffmpeg-static": "^5.3.0",
+    "globals": "^17.13.0",
+    "playwright": "^1.63.0"
+  }
+}

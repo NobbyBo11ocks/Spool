@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spool</title>
+  <link rel="stylesheet" href="ui.css">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <div class="brand"><img src="icons/icon16.png" width="16" height="16" alt=""><h1>Spool</h1></div>
+    <div class="tools">
+      <button id="rescan" class="icon-btn" type="button" title="Rescan this page" aria-label="Rescan this page"></button>
+      <button id="diagnostics" class="icon-btn" type="button" title="Copy diagnostics (no query strings, no page title)" aria-label="Copy diagnostics"></button>
+    </div>
+  </header>
+  <div id="notes"></div>
+  <main id="list" aria-live="polite"></main>
+  <footer>Only save video you have the right to download.</footer>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+name: Bug report
+description: A video wasn't detected, a download failed, or something looks wrong
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please only report pages with media you have the right to save. Requests to bypass DRM or to
+        add workarounds for a particular site's protection are out of scope and will be closed.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what you got instead.
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: |
+        Open the popup on the affected tab and press the clipboard button (Copy diagnostics), then paste here. It contains
+        the detected items, rejected URLs and recent events, with query strings, fragments and the page title removed.
+      render: json
+  - type: input
+    id: version
+    attributes:
+      label: Spool and Chrome versions
+      placeholder: Spool 0.1.0, Chrome 154
+    validations:
+      required: true
+  - type: input
+    id: page
+    attributes:
+      label: A public page that shows it (optional)
+      description: Only if the media on it is something you may save.

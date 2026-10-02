@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Lint, unit and integration tests
+        run: npm test
+      # Branded Chrome 137+ ignores --load-extension, so the end-to-end suite runs in Chrome for Testing.
+      - name: Install Chrome for Testing
+        id: chrome
+        run: echo "path=$(npx --yes @puppeteer/browsers install chrome@stable --path .chrome --format '{{path}}')" >> "$GITHUB_OUTPUT"
+      - name: End-to-end tests
+        run: npm run test:e2e
+        env:
+          CHROME_FOR_TESTING: ${{ steps.chrome.outputs.path }}

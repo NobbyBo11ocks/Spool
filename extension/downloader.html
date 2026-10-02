@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spool</title>
+  <link rel="stylesheet" href="ui.css">
+  <link rel="stylesheet" href="downloader.css">
+</head>
+<body>
+  <main>
+    <header>
+      <h1 id="title">Preparing…</h1>
+      <p id="source"></p>
+    </header>
+    <div id="notice" class="notice" hidden></div>
+    <section id="tracks"></section>
+    <p id="status" role="status" aria-live="polite"></p>
+    <p class="hint">Keep this tab open until the download finishes.</p>
+  </main>
+  <script src="lib/vendor/mux-mp4.min.js"></script>
+  <script type="module" src="downloader.js"></script>
+</body>
+</html>

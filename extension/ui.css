@@ -1,0 +1,70 @@
+/* Shared base for the popup and the downloader page: tokens, controls, focus. Compact, flat, one accent colour. */
+:root {
+  color-scheme: light dark;
+  --bg: #ffffff;
+  --subtle: #f5f6f8;
+  --border: #e3e5ea;
+  --text: #1c1f26;
+  --muted: #667085;
+  --accent: #2a47d8;
+  --accent-hover: #2239b8;
+  --on-accent: #ffffff;
+  --danger: #b42318;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16181c;
+    --subtle: #1e2126;
+    --border: #2b2f36;
+    --text: #e7e9ed;
+    --muted: #8c94a3;
+    --accent: #6b93ff;
+    --accent-hover: #88a8ff;
+    --on-accent: #0a1230;
+    --danger: #ff8a80;
+  }
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { background: var(--bg); }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 13px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, p { margin: 0; }
+button, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:disabled, select:disabled { opacity: 0.45; cursor: default; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.btn {
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  font-weight: 500;
+}
+.btn:hover:not(:disabled) { background: var(--subtle); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.btn.primary:hover:not(:disabled) { background: var(--accent-hover); border-color: var(--accent-hover); }
+
+.icon-btn {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+}
+.icon-btn:hover:not(:disabled) { background: var(--subtle); color: var(--text); }
+.icon-btn.primary { background: var(--accent); color: var(--on-accent); }
+.icon-btn.primary:hover:not(:disabled) { background: var(--accent-hover); color: var(--on-accent); }
+.icon-btn svg { display: block; }
