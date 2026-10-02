@@ -19,6 +19,14 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # The tests generate streams with ffmpeg and decode what Spool saves. The static build bundled by ffmpeg-static
+      # crashes on these runners when decoding MPEG-TS, so use the distribution's.
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          echo "FFMPEG_PATH=$(command -v ffmpeg)" >> "$GITHUB_ENV"
+          ffmpeg -version | head -1
       - name: Lint, unit and integration tests
         run: npm test
       # Branded Chrome 137+ ignores --load-extension, so the end-to-end suite runs in Chrome for Testing.

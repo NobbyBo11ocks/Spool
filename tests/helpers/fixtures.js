@@ -8,7 +8,9 @@ import { createRequire } from 'node:module';
 import { createCipheriv } from 'node:crypto';
 
 const require = createRequire(import.meta.url);
-export const ffmpegPath = require('ffmpeg-static');
+// ffmpeg generates the fixtures and decodes the output. FFMPEG_PATH picks a system build instead of the bundled static one:
+// on GitHub's Linux runners the bundled binary was observed to die with SIGSEGV when decoding MPEG-TS, so CI uses the distro's.
+export const ffmpegPath = process.env.FFMPEG_PATH || require('ffmpeg-static');
 
 export const FIXTURE_DIR = join(tmpdir(), 'moviedownloader-fixtures-v7');
 export const SOURCE_SECONDS = 12;
