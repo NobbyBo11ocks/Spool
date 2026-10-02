@@ -30,11 +30,13 @@ export function probeDecode(file) {
   const errors = r.stderr
     .split(/\r|\n/)
     .filter((l) => l && !/^(frame|size)=/.test(l.trim()) && !/^\[out#/.test(l) && !/^\s*$/.test(l));
+  // A failure with no message of its own (a crash, a spawn error) must still say what happened.
+  const exit = r.status === 0 ? '' : `\n[ffmpeg exit status ${r.status}, signal ${r.signal}${r.error ? `, ${r.error.message}` : ''}]`;
   return {
     ok: r.status === 0 && errors.length === 0,
     frames: frames ? Number(frames) : 0,
     seconds: time ? Number(time[1]) * 3600 + Number(time[2]) * 60 + Number(time[3]) : 0,
-    stderr: r.stderr,
+    stderr: r.stderr + exit,
   };
 }
 

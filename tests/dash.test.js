@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ensureFixtures, FIXTURE_DIR } from './helpers/fixtures.js';
 import { parseXml, childOf, childrenOf } from '../extension/lib/xml.js';
+import { readBoxes } from '../extension/lib/fmp4.js';
 import {
   parseDuration, parseRange, expandTemplate, parseMpd, mainPeriod, videoRepresentations, audioRepresentations,
   representationLabel, representationExtension, resolveSegments, summarizeMpd,
@@ -124,16 +125,24 @@ test('SegmentList (ffmpeg): uniform durations from timescale/duration', () => {
 test('single file with byte ranges (ffmpeg): every segment is a slice of the BaseURL', () => {
   const mpd = load('dash-single');
   const v = resolveSegments(first(mpd, 'video'));
+  const url = `${CDN}/dash-single/index-stream0.mp4`;
   assert.equal(v.single, false);
-  assert.deepEqual(v.init, { url: `${CDN}/dash-single/index-stream0.mp4`, range: { offset: 0, length: 836 } });
   assert.equal(v.segments.length, 6);
-  assert.ok(v.segments.every((s) => s.url === `${CDN}/dash-single/index-stream0.mp4`));
-  assert.deepEqual(v.segments[0].range, { offset: 836, length: 17113 - 836 + 1 });
-  // Ranges tile the file after the init segment without gaps.
-  for (let i = 1; i < v.segments.length; i++) {
-    assert.equal(v.segments[i].range.offset, v.segments[i - 1].range.offset + v.segments[i - 1].range.length);
-  }
-  assert.deepEqual(summarizeMpd(mpd).childUrls.sort(), [`${CDN}/dash-single/index-stream0.mp4`, `${CDN}/dash-single/index-stream1.mp4`]);
+  assert.ok(v.segments.every((s) => s.url === url));
+  assert.deepEqual(summarizeMpd(mpd).childUrls.sort(), [url, `${CDN}/dash-single/index-stream1.mp4`]);
+
+  // The expected ranges come from the file itself (byte counts differ between ffmpeg builds): the init segment is
+  // ftyp + moov, and each media segment runs from one sidx box to the next, tiling the file without gaps.
+  const file = new Uint8Array(readFileSync(join(FIXTURE_DIR, 'dash-single', 'index-stream0.mp4')));
+  const boxes = [...readBoxes(file)];
+  const moov = boxes.find((b) => b.type === 'moov');
+  const starts = boxes.filter((b) => b.type === 'sidx').map((b) => b.start);
+  assert.equal(starts.length, 6, 'the fixture has one sidx per segment');
+  assert.deepEqual(v.init, { url, range: { offset: 0, length: moov.end } });
+  assert.deepEqual(
+    v.segments.map((s) => [s.range.offset, s.range.offset + s.range.length]),
+    starts.map((start, i) => [start, starts[i + 1] ?? file.length]),
+  );
 });
 
 test('duration-based SegmentTemplate with $Number$', () => {
