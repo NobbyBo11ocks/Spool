@@ -1,7 +1,7 @@
 // Generates real media fixtures (HLS in several flavours) with ffmpeg and serves them over HTTP.
 import { spawnSync } from 'node:child_process';
 import { createServer } from 'node:http';
-import { createReadStream, existsSync, mkdirSync, statSync, writeFileSync, readFileSync, readdirSync } from 'node:fs';
+import { createReadStream, existsSync, mkdirSync, rmSync, statSync, writeFileSync, readFileSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, extname, normalize, sep } from 'node:path';
 import { createRequire } from 'node:module';
@@ -44,10 +44,45 @@ export function probeDecode(file) {
 
 const marker = join(FIXTURE_DIR, '.complete');
 
-/** Builds all fixtures once and returns the directory. */
+const lock = join(FIXTURE_DIR, '.building');
+const STALE_LOCK_MS = 10 * 60 * 1000;
+const sleep = (ms) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+
+/**
+ * Builds all fixtures once and returns the directory. Test files run in parallel processes and each one calls this: the
+ * first takes a lock (mkdir is atomic) and builds, the others wait for it. Without the lock they all wrote the same
+ * files at the same time on a fresh machine, and ffmpeg failed with "No such file or directory".
+ */
 export function ensureFixtures() {
   if (existsSync(marker)) return FIXTURE_DIR;
   mkdirSync(FIXTURE_DIR, { recursive: true });
+  try {
+    mkdirSync(lock);
+  } catch (e) {
+    if (e.code !== 'EEXIST') throw e;
+    while (!existsSync(marker)) {
+      let age = 0;
+      try {
+        age = Date.now() - statSync(lock).mtimeMs;
+      } catch {
+        return ensureFixtures(); // the builder finished or gave up between our checks
+      }
+      if (age > STALE_LOCK_MS) {
+        rmSync(lock, { recursive: true, force: true }); // a build that was killed halfway
+        return ensureFixtures();
+      }
+      sleep(250);
+    }
+    return FIXTURE_DIR;
+  }
+  try {
+    return buildFixtures();
+  } finally {
+    rmSync(lock, { recursive: true, force: true });
+  }
+}
+
+function buildFixtures() {
   const d = FIXTURE_DIR;
 
   // Source: 12 s, 25 fps, 640x360 H.264 + AAC with a keyframe every 2 s.
